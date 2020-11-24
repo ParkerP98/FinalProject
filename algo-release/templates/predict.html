@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>
+        Audio Genre Classification AI
+    </title>
+
+</head>
+
+<body>
+    <input id='audio-selector' type='file'>
+    <button id='predict-button'>Predict</button>
+    <p style='font-weight:bold'>Predictions</p>
+    <p>Genre: <span id='genre-prediction'></span></p>
+    <p>Confidence: <span id='confidence-prediction'></span></p>
+
+    <audio id='selected-audio' controls="controls" src=""> 
+        <!-- <source id='selected-audio-src' src='' type='audio/wav'> -->
+    </audio>    
+
+    <script src='https://code.jquery.com/jquery-3.3.1.min.js'></script>
+    <script>
+        let audiofile;
+        $('#audio-selector').change(function() {
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                let dataURL = reader.result;
+                $('#selected-audio').attr("src", dataURL);
+                audiofile = dataURL;
+                console.log(audiofile);
+            }
+            reader.readAsDataURL($('#audio-selector')[0].files[0]);
+            $('#genre-prediction').text('');
+            $('#confidence-prediction').text('');
+           
+        });
+
+        $('#predict-button').click(function(event){
+            let message = {
+                audio: audiofile
+            }
+            console.log(message);
+            $.post('/predict', JSON.stringify(message), function(params){
+                $('#genre-prediction').text(params.prediction.genre);
+                $('#confidence-prediction').text(params.prediction.confidence.toFixed(4));
+               
+            })
+        })
+    </script>  
+
+</body>
+</html>
